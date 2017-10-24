@@ -5,7 +5,7 @@ var Movie = Backbone.Model.extend({
   },
 
   toggleLike: function() {
-    // your code here
+    this.set('like', !this.get('like'));
   }
 
 });
@@ -13,15 +13,17 @@ var Movie = Backbone.Model.extend({
 var Movies = Backbone.Collection.extend({
 
   model: Movie,
+  // clarify why not this.model.on ???? 
 
-  initialize: function() {
-    // your code here
+  initialize: function() { 
+    this.on('change:like', this.sort);
   },
 
   comparator: 'title',
 
   sortByField: function(field) {
-    // your code here
+    this.comparator = field;
+    this.sort();
   }
 
 });
@@ -47,6 +49,7 @@ var AppView = Backbone.View.extend({
 });
 
 var MovieView = Backbone.View.extend({
+  
 
   template: _.template('<div class="movie"> \
                           <div class="like"> \
@@ -57,8 +60,10 @@ var MovieView = Backbone.View.extend({
                           <div class="rating">Fan rating: <%- rating %> of 10</div> \
                         </div>'),
 
+// what is the model doing here ? 
+
   initialize: function() {
-    // your code here
+    this.model.on('change:like', this.render, this);
   },
 
   events: {
@@ -66,7 +71,7 @@ var MovieView = Backbone.View.extend({
   },
 
   handleClick: function() {
-    // your code here
+    this.model.toggleLike();
   },
 
   render: function() {
@@ -79,7 +84,7 @@ var MovieView = Backbone.View.extend({
 var MoviesView = Backbone.View.extend({
 
   initialize: function() {
-    // your code here
+    this.collection.on('sort', this.render, this);
   },
 
   render: function() {
@@ -93,3 +98,5 @@ var MoviesView = Backbone.View.extend({
   }
 
 });
+
+
